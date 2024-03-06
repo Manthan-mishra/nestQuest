@@ -1,10 +1,8 @@
-import express from express();
+import { signup } from "../controllers/auth.controller.js";
+import express from "express";
 
 const userAuth = express.Router();
 
+userAuth.post("/signup", signup);
 
-userAuth.post("/signup");
-
-
-
-
+export default userAuth;
