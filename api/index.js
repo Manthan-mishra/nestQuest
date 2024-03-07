@@ -24,3 +24,13 @@ app.listen(8000, () => {
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", userAuth);
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Seerver Error!";
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
