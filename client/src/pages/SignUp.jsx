@@ -1,10 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -13,6 +18,9 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+
     await axios
       .post("/api/auth/signup", JSON.stringify(formData), {
         headers: {
@@ -20,10 +28,19 @@ const SignUp = () => {
         },
       })
       .then((res) => {
+        setLoading(false);
+        setError("");
         console.log("data ", res.data);
+        navigate("/sign-in");
       })
       .catch((err) => {
-        console.log(err);
+        if (err.response.data.success === false) {
+          setError(err.response.data.message);
+          setLoading(false);
+        } else {
+          setError(err.message);
+          setLoading(false);
+        }
       });
   };
 
@@ -62,6 +79,13 @@ const SignUp = () => {
           <span className="text-blue-700">Sign in</span>
         </Link>
       </div>
+      {error && <p className="text-red-500 mt-5">{error}</p>}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 };
