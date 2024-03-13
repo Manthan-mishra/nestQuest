@@ -4,42 +4,43 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { error, loading } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
-  // console.log("value ", formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
+    dispatch(signInStart());
 
     await axios
-      .post("/api/auth/signin", JSON.stringify(formData), {
+      .post("/api/auth/signin", formData, {
         headers: {
           "Content-Type": "application/json",
         },
       })
       .then((res) => {
-        setLoading(false);
-        setError("");
-        console.log("data ", res.data);
+        dispatch(signInSuccess(res.data));
         navigate("/");
       })
       .catch((err) => {
         if (err.response.data.success === false) {
-          setError(err.response.data.message);
-          setLoading(false);
+          dispatch(signInFailure(err.response.data.message));
         } else {
-          setError(err.message);
-          setLoading(false);
+          dispatch(signInFailure(err.message));
         }
       });
   };

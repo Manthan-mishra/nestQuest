@@ -22,7 +22,7 @@ const SignUp = () => {
     setLoading(true);
 
     await axios
-      .post("/api/auth/signup", JSON.stringify(formData), {
+      .post("/api/auth/signup", formData, {
         headers: {
           "Content-Type": "application/json",
         },
