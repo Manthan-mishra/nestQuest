@@ -1,6 +1,7 @@
 import React from "react";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
+import axios from "axios";
 
 const OAuth = () => {
   const handleGoogleClick = async () => {
@@ -9,6 +10,19 @@ const OAuth = () => {
       const auth = getAuth(app);
 
       const res = await signInWithPopup(auth, provider);
+      axios
+        .post(
+          "/api/auth/google",
+          {
+            name: res.user.displayName,
+            email: res.user.email,
+            photo: res.user.photoURL,
+          },
+          { headers: { "Content-Type": "application/json" } }
+        )
+        .then(() => {})
+        .catch((err) => {});
+
       console.log("data ", res);
     } catch (error) {
       console.log("could not sign in using google ", error);
