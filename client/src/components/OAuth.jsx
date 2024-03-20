@@ -2,6 +2,12 @@ import React from "react";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
 import axios from "axios";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const OAuth = () => {
   const handleGoogleClick = async () => {
@@ -20,8 +26,10 @@ const OAuth = () => {
           },
           { headers: { "Content-Type": "application/json" } }
         )
-        .then(() => {})
-        .catch((err) => {});
+        .then((res) => {
+          dispatch(signInSuccess(res.data));
+          navigate("/");
+        });
 
       console.log("data ", res);
     } catch (error) {
