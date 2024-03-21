@@ -8,8 +8,11 @@ import {
   signInFailure,
 } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const OAuth = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
