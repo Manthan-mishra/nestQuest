@@ -19,7 +19,7 @@ const userSchema = new Schema(
     avatar: {
       type: String,
       default:
-        "https://image.shutterstock.com/image-vector/man-icon-vector-260nw-1040084344.jpg",
+        "https://www.tech101.in/wp-content/uploads/2018/07/blank-profile-picture.png",
     },
   },
   { timestamps: true }
