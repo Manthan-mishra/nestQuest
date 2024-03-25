@@ -1,13 +1,21 @@
 import { useRef, useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getStorage, ref } from "firebase/storage";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
 import { app } from "../firebase";
 
 const Profile = () => {
   const fileRef = useRef(null);
   const { currentUser } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
-  console.log(file);
+  const [filePercentage, setFilePercentage] = useState(0);
+  const [fileUploadError, setFileUploadError] = useState(false);
+  const [formData, setFormData] = useState({});
+  console.log(formData);
 
   useEffect(() => {
     if (file) {
@@ -21,7 +29,22 @@ const Profile = () => {
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    uploadTask.on("state_changed");
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePercentage(Math.round(progress));
+      },
+      (err) => {
+        setFileUploadError(true);
+      },
+      (file) => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFormData({ ...formData, avatar: downloadURL });
+        });
+      }
+    );
   };
 
   return (
