@@ -1,7 +1,7 @@
 {
   "name": "nest_quest",
   "version": "1.0.0",
-  "description": "",
+  "description": "A rent & buy estate application ",
   "main": "index.js",
   "type": "module",
   "scripts": {

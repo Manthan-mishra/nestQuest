@@ -15,7 +15,6 @@ const Profile = () => {
   const [filePercentage, setFilePercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
-  console.log(formData);
 
   useEffect(() => {
     if (file) {
@@ -39,10 +38,10 @@ const Profile = () => {
       (err) => {
         setFileUploadError(true);
       },
-      (file) => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setFormData({ ...formData, avatar: downloadURL });
-        });
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
+          setFormData({ ...formData, avatar: downloadURL })
+        );
       }
     );
   };
@@ -59,11 +58,26 @@ const Profile = () => {
           accept="image/*"
         />
         <img
-          src={currentUser.avatar}
+          src={formData.avatar || currentUser.avatar}
           alt="profile picture"
           onClick={() => fileRef.current.click()}
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
+        <p className="text-sm self-center">
+          {fileUploadError ? (
+            <span className="text-red-700">
+              Error Image Upload (Image must be less than 2mb)
+            </span>
+          ) : filePercentage > 0 && filePercentage < 100 ? (
+            <span className="text-slate-700">{`Uploading ${filePercentage}%`}</span>
+          ) : filePercentage === 100 ? (
+            <span className="text-green-700">
+              Image successfully uploaded!{" "}
+            </span>
+          ) : (
+            ""
+          )}
+        </p>
         <input
           type="text"
           placeholder="username"
