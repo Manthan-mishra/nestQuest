@@ -3,5 +3,6 @@ import { test } from "../controllers/user.controller.js";
 const userRouter = express.Router();
 
 userRouter.get("/test", test);
+userRouter.post;
 
 export default userRouter;
