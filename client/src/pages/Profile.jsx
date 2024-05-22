@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import {
   getDownloadURL,
   getStorage,
@@ -166,6 +167,12 @@ const Profile = () => {
         <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
           update
         </button>
+        <Link
+          className="bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95"
+          to={"/create-listing"}
+        >
+          Create Listing
+        </Link>
       </form>
       <div className="flex justify-between mt-5">
         <span
