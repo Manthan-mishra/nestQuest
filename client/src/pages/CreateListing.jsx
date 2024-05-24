@@ -5,9 +5,14 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import { app } from "../firebase";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const CreateListing = () => {
   const [files, setFiles] = useState([]);
+  const [imageUploadError, setImageUploadError] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     imageUrls: [],
     // name: "",
@@ -23,20 +28,30 @@ const CreateListing = () => {
     // furnished: false,
   });
 
-  console.log("form data ", formData);
-
   const handleImageSubmit = (e) => {
-    if (files.length > 0 && files.length < 7) {
+    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setImageUploadError(false);
       const promises = [];
       for (let i = 0; i < files.length; i++) {
         promises.push(storeImage(files[i]));
       }
-      Promise.all(promises).then((urls) => {
-        setFormData({
-          ...formData,
-          imageUrls: formData.imageUrls.concat(urls),
+      Promise.all(promises)
+        .then((urls) => {
+          setFormData({
+            ...formData,
+            imageUrls: formData.imageUrls.concat(urls),
+          });
+          setImageUploadError(false);
+          setUploading(false);
+        })
+        .catch((error) => {
+          setImageUploadError("Image upload failed (2mb max per image)");
+          setUploading(false);
         });
-      });
+    } else {
+      setImageUploadError("You can only upload 6 images per listing");
+      setUploading(false);
     }
   };
   const storeImage = async (file) => {
@@ -47,6 +62,11 @@ const CreateListing = () => {
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
         "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
         (error) => {
           reject(error);
         },
@@ -56,6 +76,13 @@ const CreateListing = () => {
           });
         }
       );
+    });
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
   };
 
@@ -188,11 +215,42 @@ const CreateListing = () => {
               Upload
             </button>
           </div>
+          <p className="text-red-700 text-sm">
+            {imageUploadError && imageUploadError}
+          </p>
+          {formData.imageUrls.length > 0 &&
+            formData.imageUrls.map((url, index) => {
+              return (
+                <div
+                  key={url}
+                  className="flex justify-between p-3 border items-center"
+                >
+                  <img
+                    src={url}
+                    alt="listing image"
+                    className="w-20 h-20 object-contain rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })}
           <button className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95">
             Create Listing
           </button>
         </div>
       </form>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={uploading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </main>
   );
 };
